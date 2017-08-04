@@ -1,0 +1,13 @@
+You cannot use the Unsplash name directly in your application name.
+
+You cannot use the Unsplash logo as an app icon.
+
+You cannot replicate the core user experience of unsplash.com.
+
+Your application must credit Unsplash, the Unsplash photographer, and a link back to their Unsplash profile.
+
+All attribution links back to Unsplash must append UTM parameters.
+
+Do not abuse the APIs. Too many requests too quickly will get your access turned off.
+
+
