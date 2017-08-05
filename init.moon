@@ -3,11 +3,15 @@
 package.path = "?.lua;?/init.lua;" .. package.path
 require 'luarocks.loader'
 require 'os'
+require 'io'
+
+-- You need to provide your own api key (https://unsplash.com/developers)
+api_key = io.read 'api.key'
 
 Paper = require 'paper'
-paper = Paper 1920, 1080
+paper = Paper 1920, 1080, api_key
 
-time = os.date('%H')
+time = tonumber os.date '%H'
 
 -- Determine (scientifically correct(ish)) what type to display
 timetag = if time >= 22 or (time >= 0 and time <= 4)
