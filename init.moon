@@ -23,13 +23,6 @@ cache_dir = os.getenv("HOME") .. '/.cache/awesomepaper/'
 print cache_dir
 os.execute "mkdir -p" .. cache_dir
 
-
--- Utility function to handle errors
-try = (f) ->
-  ok, err = pcall f
-  if not ok then err\gsub '^[^:]+:%d+: ',''
-
-
 -- Run a function for every screen
 awful.screen.connect_for_each_screen (screen) ->
   geo = screen.geometry
@@ -48,10 +41,11 @@ timer_callback = ->
 
   for id, ps in pairs paper_screens
     path = cache_dir .. 'wallpaper_' .. id .. '_' .. time .. '.jpg'
-
-    -- Download a picture, catching and ignoring errors
-    try -> ps.paper\getImage(time, path)
+    ps.paper\getImage(time, path)
+    
     gears.wallpaper.prepare_context ps.screen
+    geo = ps.screen.geometry
+    print "Setting wallpaper for screen #{geo.width}x#{geo.height}" 
     gears.wallpaper.maximized path, ps.screen, true
 
 
@@ -62,4 +56,6 @@ gears.timer {
   callback: timer_callback
 }
 
+
+print "Running 'timer_callback' once!"
 timer_callback!
