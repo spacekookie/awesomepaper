@@ -14,7 +14,8 @@ clean:
 	moonc $<
 
 run: build
-	luajit init.lua
+	echo "yo"
+	# luajit init.lua
 
 doc: build
 	ldoc -q nm

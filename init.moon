@@ -5,36 +5,53 @@ require 'luarocks.loader'
 require 'os'
 require 'io'
 
+-- Require all the awesomewm stuff
+awful = require 'awful'
+naughty = require 'naughty'
+gears = require 'gears'
+require 'moon.all'
+
+-- Our core module
+Paper = require 'paper.paper'
+PaperUtils = require 'paper.utils'
+
 -- You need to provide your own api key (https://unsplash.com/developers)
-api_key = io.open('api_key', 'r')\read!
-
-Paper = require 'paper'
-paper = Paper 1920, 1080, api_key
-
-time = tonumber os.date '%H'
-
--- Determine (scientifically correct(ish)) what type to display
--- timetag = if time >= 22 or (time >= 0 and time <= 4)
---   'night'
--- elseif time > 4 and time <= 6
---   'dawn'
--- elseif time > 6 and time <= 12
---   'morning'
--- elseif time > 12 and time <= 18
---   'afternoon'
--- elseif time > 17 and time <= 19
---   'dusk'
--- elseif time > 19 and time <= 22
---   'evening'
-
--- paper\getImage timetag
+api_key = io.open('/home/spacekookie/.config/awesome/paper/api_key', 'r')\read!
+paper_screens = {}
+run_delay = 3600 * 2  -- 2 hours in seconds
+cache_dir = os.getenv("HOME") .. '/.cache/awesomepaper/'
+print cache_dir
+os.execute "mkdir -p" .. cache_dir
 
 
--- paper\getImage 'night'
--- paper\getImage 'dawn'
--- paper\getImage 'morning'
--- paper\getImage 'afternoon'
--- paper\getImage 'dusk'
--- paper\getImage 'evening'
+-- Run a function for every screen
+awful.screen.connect_for_each_screen (screen) ->
+  geo = screen.geometry
+  naughty.notify { 
+    text: "Registering a screen (#{geo.width}x#{geo.height}) for paper"
+    timeout: 3
+  }
 
--- print os.date('%H') % 4
+  paper = Paper geo.width, geo.height, api_key
+  table.insert paper_screens, { :paper, :screen }
+
+
+---- Download an image and set it as the wallpaper for each screen
+timer_callback = ->
+  time = PaperUtils\getTime!
+
+  for id, ps in pairs paper_screens
+    path = cache_dir .. 'wallpaper_' .. id .. '.jpg'
+    ps.paper\getImage(time, path)
+    gears.wallpaper.prepare_context ps.screen
+    gears.wallpaper.maximized path, ps.screen, true
+
+
+-- Setup a timer that runs every few hours
+gears.timer {
+  timeout: run_delay
+  autostart: true
+  callback: timer_callback
+}
+
+timer_callback!
