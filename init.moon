@@ -24,6 +24,12 @@ print cache_dir
 os.execute "mkdir -p" .. cache_dir
 
 
+-- Utility function to handle errors
+try = (f) ->
+  ok, err = pcall f
+  if not ok then err\gsub '^[^:]+:%d+: ',''
+
+
 -- Run a function for every screen
 awful.screen.connect_for_each_screen (screen) ->
   geo = screen.geometry
@@ -41,8 +47,10 @@ timer_callback = ->
   time = PaperUtils\getTime!
 
   for id, ps in pairs paper_screens
-    path = cache_dir .. 'wallpaper_' .. id .. '.jpg'
-    ps.paper\getImage(time, path)
+    path = cache_dir .. 'wallpaper_' .. id .. '_' .. time .. '.jpg'
+
+    -- Download a picture, catching and ignoring errors
+    try -> ps.paper\getImage(time, path)
     gears.wallpaper.prepare_context ps.screen
     gears.wallpaper.maximized path, ps.screen, true
 
